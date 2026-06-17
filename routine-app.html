@@ -95,6 +95,8 @@ body.night .btn-done{color:#0f0e17;}
 .task-info{flex:1;min-width:0;}
 .task-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .task-sub{font-size:11px;color:var(--sub);margin-top:2px;}
+.edit-btn{background:none;border:none;font-size:18px;cursor:pointer;padding:4px 6px;flex-shrink:0;opacity:0.5;transition:opacity .15s;-webkit-tap-highlight-color:transparent;}
+.edit-btn:active{opacity:1;}
 .drag-handle{font-size:22px;color:var(--sub);opacity:.35;cursor:grab;padding:4px 2px;touch-action:none;flex-shrink:0;}
 .drag-handle:active{cursor:grabbing;}
 .empty{text-align:center;padding:60px 20px;}
@@ -458,7 +460,13 @@ function renderList(all){
         <div class="task-name">${esc(t.name)}</div>
         <div class="task-sub">${[durStr,dayStr].filter(Boolean).join('・')}</div>
       </div>
+      <button class="edit-btn" data-id="${t.id}">✏️</button>
       <div class="drag-handle" title="ドラッグで並び替え">⠿</div>`;
+
+    card.querySelector('.edit-btn').addEventListener('click', e=>{
+      e.stopPropagation();
+      openEdit(t.id);
+    });
 
     // tap
     card.addEventListener('click',e=>{
@@ -466,14 +474,7 @@ function renderList(all){
       if(isDone){ delete doneToday[t.id]; persist(); render(); return; }
       startTask(t);
     });
-    // long press → edit
-    let pt;
-    card.addEventListener('pointerdown',ev=>{
-      if(ev.target.classList.contains('drag-handle'))return;
-      pt=setTimeout(()=>openEdit(t.id),600);
-    });
-    card.addEventListener('pointerup',()=>clearTimeout(pt));
-    card.addEventListener('pointercancel',()=>clearTimeout(pt));
+
 
     // ── TOUCH DRAG (mobile sort via handle) ──
     setupTouchDrag(card, i, lv);
